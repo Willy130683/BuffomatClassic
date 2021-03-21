@@ -1612,7 +1612,7 @@ local function bom_add_blessing(spell, player_member, in_range)
   end -- for all NeedMember
 end
 
----Add a paladin blessing
+---Add a buff
 ---@param spell table - spell to cast
 ---@param party table - the party
 ---@param player_member table - player
@@ -2158,7 +2158,7 @@ function BOM.UpdateScan()
     --                next_cast_spell.Link,
     --                next_cast_spell.Member.link),
     --        true)
-    bom_cast_button(next_cast_spell.Link, true)
+    bom_cast_button(string.format(L["MsgNextCast"], next_cast_spell.Link, next_cast_spell.Member.link), true)
 
     BOM.UpdateMacro(next_cast_spell.Member, next_cast_spell.SpellId)
 
