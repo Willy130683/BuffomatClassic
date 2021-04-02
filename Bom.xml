@@ -303,10 +303,29 @@
               </Anchor>
               <Anchor point="BOTTOMRIGHT">
                 <Offset>
-                  <AbsDimension x="-18" y="12"/>
+                  <AbsDimension x="-40" y="12"/>
                 </Offset>
               </Anchor>
             </Anchors>
+          </Button>
+
+          <!--
+          Ignore Button
+          Will add the current spell for the current target on ignore
+          -->
+          <Button name="$parent_IgnoreButton" inherits="BomC_MiniButton"
+                  text="|TInterface\Buttons\UI-MultiCheck-Up:0|t">
+            <Size>
+              <AbsDimension x="22" y="22"/>
+            </Size>
+            <Anchors>
+              <Anchor point="LEFT" relativeTo="$parent_Button"
+                      relativePoint="RIGHT"/>
+            </Anchors>
+            <Scripts>
+              <OnMouseDown>BUFFOMAT_ADDON.IgnoreButtonClick()</OnMouseDown>
+              <OnLoad>BUFFOMAT_ADDON.MyButton_OnLoad(self)</OnLoad>
+            </Scripts>
           </Button>
 
           <ScrollingMessageFrame enableMouseWheel="true"

@@ -98,6 +98,7 @@ BOM.locales = {
     --BtnSettingsSpells = "Settings Spells",
     BtnBuffs                      = "Consumables",
     BtnPerformeBuff               = "Cast buff",
+    BtnResetIgnores               = "Reset ignores",
 
     Header_TRACKING               = "Tracking",
     Header_INFO                   = "Information",

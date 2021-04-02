@@ -172,6 +172,7 @@ function BOM.Popup(self, minimap)
   BOM.PopupDynamic:SubMenu()
 
   BOM.PopupDynamic:AddItem(L.BtnSettings, false, BOM.Options.Open, 1)
+  BOM.PopupDynamic:AddItem(L.BtnResetIgnores, false, BOM.ResetIgnores)
   BOM.PopupDynamic:AddItem(L["BtnCancel"], false)
 
   BOM.PopupDynamic:Show(self or "cursor", 0, 0)
@@ -766,6 +767,7 @@ local function Event_CombatStart()
   BOM.AutoClose()
   if not InCombatLockdown() then
     BomC_ListTab_Button:Disable()
+    BomC_ListTab_IgnoreButton:Disable()
   end
   BOM.BattleCancelBuffs()
 end
@@ -1248,4 +1250,8 @@ end
 
 function BOM.MyButtonOnClick(self)
   BOM.OptionsUpdate()
+end
+
+function BOM.IgnoreButtonClick()
+  BOM.IgnoreCurrentSpell()
 end

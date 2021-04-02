@@ -880,7 +880,8 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
     end
 
   elseif spell.isBuff then
-    if not player_member.buffs[spell.ConfigID] then
+    if isNotIgnored(spell, player_member.name)
+            and not player_member.buffs[spell.ConfigID] then
       tinsert(spell.NeedMember, player_member)
     end
 
@@ -888,7 +889,8 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
     spell.playerActiv = false
 
     for i, member in ipairs(party) do
-      if member.buffs[spell.ConfigID] then
+      if isNotIgnored(spell, member.name)
+              and  member.buffs[spell.ConfigID] then
         tinsert(spell.NeedMember, member)
         if member.isPlayer then
           spell.playerActiv = true
@@ -903,7 +905,8 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
       end
     end
   elseif spell.isOwn then
-    if not player_member.isDead then
+    if not player_member.isDead
+            and isNotIgnored(spell, player_member.name) then
       if spell.ItemLock then
         if IsSpellKnown(spell.singleId) and not (BOM.HasItem(spell.ItemLock)) then
           tinsert(spell.NeedMember, player_member)
@@ -972,6 +975,7 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
       end
 
       if member.NeedBuff
+              and isNotIgnored(spell, member.name)
               and ok
               and member.isConnected
               and (not BOM.SharedState.SameZone or member.isSameZone) then
@@ -1025,6 +1029,7 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
       end
 
       if member.NeedBuff
+              and isNotIgnored(spell, member.name)
               and ok
               and member.isConnected
               and (not BOM.SharedState.SameZone or member.isSameZone) then
@@ -1247,6 +1252,8 @@ local bom_cast_messages = {}
 local bom_info_messages = {}
 ---@type number - index to insert another line
 local bom_insert_index
+---@type table - list of ignored spells on targets
+local bom_ignored = {}
 
 ---Adds a text line to display in the message frame. The line is stored in DisplayCache
 ---@param text string - Text to display
@@ -1889,8 +1896,10 @@ function bom_cast_button(t, enable)
   BomC_ListTab_Button:SetText(t)
   if enable then
     BomC_ListTab_Button:Enable()
+    BomC_ListTab_IgnoreButton:Enable()
   else
     BomC_ListTab_Button:Disable()
+    BomC_ListTab_IgnoreButton:Disable()
   end
 end
 
@@ -2167,8 +2176,10 @@ function BOM.UpdateScan()
     if cdtest ~= 0 then
       BOM.CheckCoolDown = next_cast_spell.SpellId
       BomC_ListTab_Button:Disable()
+      BomC_ListTab_IgnoreButton:Disable()
     else
       BomC_ListTab_Button:Enable()
+      BomC_ListTab_IgnoreButton:Enable()
     end
 
     BOM.CastFailedSpell = next_cast_spell.Spell
@@ -2288,4 +2299,51 @@ function BOM.SpellHasClasses(spell)
           or spell.isTracking
           or spell.isAura
           or spell.isInfo)
+end
+
+--- put next spell on ignore list
+function BOM.IgnoreCurrentSpell()
+  if next_cast_spell.SpellId == nil then
+    return
+  end
+
+  --print("ignore spell: ", next_cast_spell.SpellId, "for target: ", next_cast_spell.Member.name)
+
+  if bom_ignored[next_cast_spell.SpellId] == nil then
+    bom_ignored[next_cast_spell.SpellId] = {}
+  end
+  bom_ignored[next_cast_spell.SpellId][next_cast_spell.Member.name] = true
+
+  BOM.ForceUpdate = true
+  BOM.UpdateScan()
+  --for key, value in pairs(bom_ignored) do
+  --  print("spellId ", key)
+  --  for member, memberBool in pairs(value) do
+  --    print("member: ", member)
+  --  end
+  --end
+end
+
+--- resets the ignore table
+function BOM.ResetIgnores()
+  wipe(bom_ignored)
+  BOM.ForceUpdate = true
+  BOM.UpdateScan()
+end
+
+---@param spell table - spell to check
+---@param targetName string - the target to check
+function isNotIgnored(spell, targetName)
+  --for key, value in pairs(spell) do
+  --  print(key, ": ", value)
+  --end
+  --print("check ignored spell: ", spell, " target: ", targetName)
+  result = true
+  if bom_ignored[spell.ConfigID] then
+    result = not bom_ignored[spell.ConfigID][targetName]
+  end
+
+  --print("isNotIgnored: ", result, " spell: ", spell.ConfigID, " target: ", targetName)
+
+  return result
 end
