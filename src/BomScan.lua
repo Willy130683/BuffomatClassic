@@ -890,7 +890,7 @@ function bom_update_spell_targets(party, spell, player_member, someone_is_dead)
 
     for i, member in ipairs(party) do
       if isNotIgnored(spell, member.name)
-              and  member.buffs[spell.ConfigID] then
+              and member.buffs[spell.ConfigID] then
         tinsert(spell.NeedMember, member)
         if member.isPlayer then
           spell.playerActiv = true
@@ -2307,8 +2307,6 @@ function BOM.IgnoreCurrentSpell()
     return
   end
 
-  --print("ignore spell: ", next_cast_spell.SpellId, "for target: ", next_cast_spell.Member.name)
-
   if bom_ignored[next_cast_spell.SpellId] == nil then
     bom_ignored[next_cast_spell.SpellId] = {}
   end
@@ -2316,12 +2314,6 @@ function BOM.IgnoreCurrentSpell()
 
   BOM.ForceUpdate = true
   BOM.UpdateScan()
-  --for key, value in pairs(bom_ignored) do
-  --  print("spellId ", key)
-  --  for member, memberBool in pairs(value) do
-  --    print("member: ", member)
-  --  end
-  --end
 end
 
 --- resets the ignore table
@@ -2334,16 +2326,14 @@ end
 ---@param spell table - spell to check
 ---@param targetName string - the target to check
 function isNotIgnored(spell, targetName)
-  --for key, value in pairs(spell) do
-  --  print(key, ": ", value)
-  --end
-  --print("check ignored spell: ", spell, " target: ", targetName)
   result = true
-  if bom_ignored[spell.ConfigID] then
-    result = not bom_ignored[spell.ConfigID][targetName]
+  if bom_ignored[spell.singleId] then
+    result = not bom_ignored[spell.singleId][targetName]
   end
 
-  --print("isNotIgnored: ", result, " spell: ", spell.ConfigID, " target: ", targetName)
+  if result and spell.groupId and bom_ignored[spell.groupId] then
+    result = not bom_ignored[spell.groupId][targetName]
+  end
 
   return result
 end
